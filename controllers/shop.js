@@ -1,24 +1,30 @@
 const Product = require('../models/product');
 
+exports.getIndex = (req, res, next)=>{
+    //res.sendFile(path.join(__dirname, '../', 'views', 'index.html'));
+    const products = Product.getAll();
+
+    res.render('shop/index', {title: 'Shopping', products: products, path: '/'});
+}
 
 exports.getProducts = (req, res, next)=>{
     //res.sendFile(path.join(__dirname, '../', 'views', 'index.html'));
     const products = Product.getAll();
 
-    res.render('index', {title: 'Homepage', products: products, path: '/'});
+    res.render('shop/products', {title: 'Products', products: products, path: '/products'});
 }
 
-exports.getAddProduct = (req, res, next)=>{
-    //html dosyaları için
-    //res.sendFile(path.join(__dirname, '../', 'views', 'add-product.html'));
+exports.getProductDetails = (req, res, next)=>{
 
-    //pug dosyaları için
-    res.render('add-product', {title: 'Add a New Product', path: '/admin/add-product'});
+    res.render('shop/details', {title: 'Details', path: '/details'});
 }
 
-exports.postAddProduct = (req, res, next)=>{
-    const product = new Product(req.body.name, req.body.price, req.body.imageUrl, req.body.description);
+exports.getCard = (req, res, next)=>{
 
-    product.saveProduct();
-    res.redirect('/'); 
+    res.render('shop/card', {title: 'Card', path: '/card'});
+}
+
+exports.getOrders = (req, res, next)=>{
+
+    res.render('shop/orders', {title: 'Orders', path: '/orders'});
 }
