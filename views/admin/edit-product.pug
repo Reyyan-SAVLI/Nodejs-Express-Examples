@@ -1,23 +1,26 @@
 extends ../layouts/main-layout.pug
 
 block content
-    form(action="/admin/edit-product" method="POST")
+    form(action="/admin/products" method="POST")
+
+        input(type="hidden" name="id" value=`${product.id}`)
+
         .form-group.row
             label(for="productName").col-sm-2.col-form-label Product Name
             .col-sm-10
-                input.form-control#name(type="text" name="name")
+                input.form-control#name(type="text" name="name" value=`${product.name}`)
         .form-group.row
             label(for="price").col-sm-2.col-form-label Price
             .col-sm-10
-                input.form-control#price(type="text" name="price")
+                input.form-control#price(type="text" name="price" value=`${product.price}`)
         .form-group.row
             label(for="imageUrl").col-sm-2.col-form-label ImageUrl
             .col-sm-10
-                input.form-control#imageUrl(type="text" name="imageUrl")
+                input.form-control#imageUrl(type="text" name="imageUrl" value=`${product.imageUrl}`)
         .form-group.row
             label(for="description").col-sm-2.col-form-label Description
             .col-sm-10
-                input.form-control#description(type="text" name="description")
+                textarea.form-control(name="description" cols="30" rows="10") #{product.description}
 
         .form-group.row
             .col-sm-10.offset-sm-2
