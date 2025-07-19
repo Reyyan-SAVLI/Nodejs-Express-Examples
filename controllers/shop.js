@@ -1,16 +1,40 @@
 const Product = require('../models/product');
+const Category = require('../models/category');
 
 exports.getIndex = (req, res, next)=>{
     //res.sendFile(path.join(__dirname, '../', 'views', 'index.html'));
     const products = Product.getAll();
+    const categories = Category.getAll();
 
-    res.render('shop/index', {title: 'Shopping', products: products, path: '/'});
+    res.render('shop/index', {
+        title: 'Shopping', 
+        products: products, 
+        categories: categories,
+        path: '/'});
 }
 
 exports.getProducts = (req, res, next)=>{
     const products = Product.getAll();
+    const categories = Category.getAll();
 
-    res.render('shop/products', {title: 'Products', products: products, path: '/products'});
+    res.render('shop/products', {
+        title: 'Products', 
+        products: products, 
+        categories: categories,
+        path: '/products'});
+}
+
+exports.getProductsByCategoryId = (req, res, next)=>{
+    const categoryid = req.params.categoryid;
+    const products = Product.getProductsByCategoryId(categoryid);
+    const categories = Category.getAll();
+
+    res.render('shop/products', {
+        title: 'Products', 
+        products: products, 
+        categories: categories,
+        selectedCategory: categoryid,
+        path: '/products'});
 }
 
 exports.getProduct = (req, res, next)=>{
