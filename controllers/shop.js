@@ -3,14 +3,20 @@ const Category = require('../models/category');
 
 exports.getIndex = (req, res, next)=>{
     //res.sendFile(path.join(__dirname, '../', 'views', 'index.html'));
-    const products = Product.getAll();
+    //const products = Product.getAll();
     const categories = Category.getAll();
 
-    res.render('shop/index', {
+    Product.getAll()
+    .then(products=>{
+        res.render('shop/index', {
         title: 'Shopping', 
-        products: products, 
+        products: products[0], 
         categories: categories,
         path: '/'});
+    })
+    .catch((err)=>{
+        console.log(err);
+    });    
 }
 
 exports.getProducts = (req, res, next)=>{
