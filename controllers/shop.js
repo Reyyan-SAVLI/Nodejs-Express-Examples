@@ -2,8 +2,6 @@ const Product = require('../models/product');
 const Category = require('../models/category');
 
 exports.getIndex = (req, res, next)=>{
-    //res.sendFile(path.join(__dirname, '../', 'views', 'index.html'));
-    //const products = Product.getAll();
     const categories = Category.getAll();
 
     Product.getAll()
@@ -20,14 +18,19 @@ exports.getIndex = (req, res, next)=>{
 }
 
 exports.getProducts = (req, res, next)=>{
-    const products = Product.getAll();
     const categories = Category.getAll();
 
-    res.render('shop/products', {
+    Product.getAll()
+    .then(products=>{
+        res.render('shop/products', {
         title: 'Products', 
-        products: products, 
+        products: products[0], 
         categories: categories,
         path: '/products'});
+    })
+    .catch((err)=>{
+        console.log(err);
+    });
 }
 
 exports.getProductsByCategoryId = (req, res, next)=>{
@@ -44,15 +47,18 @@ exports.getProductsByCategoryId = (req, res, next)=>{
 }
 
 exports.getProduct = (req, res, next)=>{
-    const product = Product.getById(req.params.productid);
-
-    res.render('shop/product-detail', {title: product.name, product: product, path: '/products'});
+    Product.getById(req.params.productid)
+    .then((product)=>{
+        res.render('shop/product-detail', {
+            title: product[0][0].name, 
+            product: product[0][0], 
+            path: '/products'});
+    })
+    .catch((err)=>{
+        console.log(err);
+    });
 }
 
-exports.getProductDetails = (req, res, next)=>{
-
-    res.render('shop/details', {title: 'Details', path: '/details'});
-}
 
 exports.getCard = (req, res, next)=>{
 
