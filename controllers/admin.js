@@ -17,10 +17,19 @@ exports.getProducts = (req, res, next)=>{
 }
 
 exports.getAddProduct = (req, res, next)=>{
-    res.render('admin/add-product', {
-        title: 'New Product', 
-        path: '/admin/add-product'
-    });
+
+    Category.findAll()
+        .then((categories)=>{
+            res.render('admin/add-product', {
+                title: 'New Product', 
+                path: '/admin/add-product',
+                categories: categories
+            });
+        })
+        .catch((err)=>{
+            console.log(err);
+        });
+    
 }
 
 exports.postAddProduct = (req, res, next)=>{
@@ -28,37 +37,22 @@ exports.postAddProduct = (req, res, next)=>{
     const price = req.body.price;
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
-    //const categoryid = req.body.categoryid;
+    const categoryid = req.body.categoryid;
+    const user = req.user;
 
-    // Product.create({
-    //     name: name,
-    //     price: price,
-    //     imageUrl: imageUrl,
-    //     description: description
-    // })
-    // .then((result)=>{
-    //     console.log(result);
-    //     res.redirect('/');
-    // })
-    // .catch((err)=>{
-    //     console.log(err);
-    // });    
-
-    const prd = Product.build({
+    user.createProduct({
         name: name,
         price: price,
         imageUrl: imageUrl,
-        description: description
-    });
-
-    prd.save()
-     .then((result)=>{
-        console.log(result);
-        res.redirect('/'); 
+        description: description,
+        categoryId: categoryid
+    })
+    .then((result)=>{
+        res.redirect('/');
     })
     .catch((err)=>{
-        console.timeLog(err);
-    });
+        console.log(err);
+    }); 
 }
 
 exports.getEditProduct = (req, res, next)=>{       
@@ -100,7 +94,7 @@ exports.postEditProduct = (req, res, next)=>{
         product.price = price;
         product.imageUrl = imageUrl;
         product.description = description;
-        //product.categoryid = categoryid;
+        product.categoryId = categoryid;
         return product.save();
     })
     .then(result => {

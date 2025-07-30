@@ -50,15 +50,25 @@ exports.getProducts = (req, res, next)=>{
 
 exports.getProductsByCategoryId = (req, res, next)=>{
     const categoryid = req.params.categoryid;
-    const products = Product.getProductsByCategoryId(categoryid);
-    const categories = Category.getAll();
-
-    res.render('shop/products', {
+    const model = [];
+    
+    Category.findAll()
+    .then(categories=>{
+        model.categories = categories;
+        const category = categories.find(i=>i.id==categoryid);
+        return category.getProducts();
+    })
+    .then(products=>{
+        res.render('shop/products', {
         title: 'Products', 
         products: products, 
-        categories: categories,
+        categories: model.categories,
         selectedCategory: categoryid,
         path: '/products'});
+    })
+    .catch((err)=>{
+        console.log(err);
+    });      
 }
 
 exports.getProduct = (req, res, next)=>{
@@ -74,23 +84,65 @@ exports.getProduct = (req, res, next)=>{
     .catch((err)=>{
         console.log(err);
     });
-    // Product.findByPk(req.params.productid)
-    // .then((product)=>{
-    //     res.render('shop/product-detail', {
-    //         title: product.name, 
-    //         product: product, 
-    //         path: '/products'});
-    // })
-    // .catch((err)=>{
-    //     console.log(err);
-    // });
 }
 
 
 exports.getCard = (req, res, next)=>{
-
-    res.render('shop/card', {title: 'Card', path: '/card'});
+    req.user.getCard()
+    .then(card=>{
+        return card.getProducts()
+               .then(products=>{
+                    console.log(products);
+                    res.render('shop/card', {
+                        title: 'Card', 
+                        path: '/card',
+                        products: products
+                    });
+               })
+               .catch(err=>{ console.log(err); })
+    })
+    .catch(err=>{
+        console.log(err);
+    })
 }
+
+exports.postCard = (req, res, next)=>{
+    const productId = req.body.productId;
+    let quantity = 1;
+    let userCard;
+
+    req.user.getCard()
+    .then(card=>{
+        userCard = card;
+        return card.getProducts({ where: {id: productId}});
+    })
+    .then(products=>{
+        let product;
+        if (products.length > 0) {
+            product = products[0];
+        }
+
+        if (product) {
+            quantity += product.cardItem.quantity;
+            return product;
+        }
+        return Product.findByPk(productId);
+    })
+    .then(product =>{
+        userCard.addProduct(product,{
+            through: {
+                quantity: quantity
+            }
+        })
+    })
+    .then(()=>{
+        res.redirect('/card');
+    })
+    .catch(err=>{
+        console.log(err);
+    })
+}
+
 
 exports.getOrders = (req, res, next)=>{
 
