@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+require('dotenv').config();
 const adminRoutes = require('./routes/admin');
 // const userRoutes = require('./routes/shop');
 const errorsController = require('./controllers/errors');

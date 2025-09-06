@@ -4,8 +4,8 @@ const MongoClient = mongodb.MongoClient;
 let _db;
 
 const mongoConnect = (callback)=>{
-    //MongoClient.connect('mongodb://localhost/node-app')
-    MongoClient.connect('mongodb+srv://reyyansvli_db_user:zX62mz9xrL79pKI9@cluster0.xplaywa.mongodb.net/node-app?retryWrites=true&w=majority&appName=Cluster0')
+    
+    MongoClient.connect(process.env.MONGO_URL)
     .then(client =>{
         console.log('Connected');
         _db = client.db();

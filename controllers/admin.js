@@ -63,28 +63,41 @@ exports.postAddProduct = (req, res, next)=>{
     }); 
 }
 
-exports.getEditProduct = (req, res, next)=>{       
-    Product.findByPk(req.params.productid)
-    .then((product)=>{
-        if (!product) {
-            return res.redirect('/');
-        }
-        Category.findAll()
-        .then((categories)=>{
-            res.render('admin/edit-product', {
+exports.getEditProduct = (req, res, next)=>{     
+    
+    Product.findById(req.params.productid)
+    .then(product =>{
+        console.log(product);
+        res.render('admin/edit-product', {
                 title: 'Edit Product', 
                 path: '/admin/products', 
-                product: product,
-                categories: categories
-            });
-        })
-        .catch((err)=>{
-            console.log(err);
-        });
-    })
-    .catch((err)=>{
-        console.log(err);
-    });
+                product: product
+        }); 
+    }) 
+    .catch(err => { console.log(err); });
+
+
+    // Product.findByPk(req.params.productid)
+    // .then((product)=>{
+    //     if (!product) {
+    //         return res.redirect('/');
+    //     }
+    //     Category.findAll()
+    //     .then((categories)=>{
+    //         res.render('admin/edit-product', {
+    //             title: 'Edit Product', 
+    //             path: '/admin/products', 
+    //             product: product,
+    //             categories: categories
+    //         });
+    //     })
+    //     .catch((err)=>{
+    //         console.log(err);
+    //     });
+    // })
+    // .catch((err)=>{
+    //     console.log(err);
+    // });
 }
 
 exports.postEditProduct = (req, res, next)=>{

@@ -3,7 +3,7 @@ extends ../layouts/main-layout.pug
 block content
     form(action="/admin/products" method="POST")
 
-        input(type="hidden" name="id" value=`${product.id}`)
+        input(type="hidden" name="id" value=`${product._id}`)
 
         .form-group.row
             label(for="productName").col-sm-2.col-form-label Product Name
@@ -17,13 +17,13 @@ block content
             label(for="imageUrl").col-sm-2.col-form-label ImageUrl
             .col-sm-10
                 input.form-control#imageUrl(type="text" name="imageUrl" value=`${product.imageUrl}`)
-        .form-group.row
-            label(for="categoryid").col-sm-2.col-form-label Category
-            .col-sm-10
-                select.form-control#categoryid(name="categoryid")
-                    option(value="-1") Select Category
-                    each category in categories 
-                        option(value=`${category.id}` selected=category.id===product.categoryId) #{category.name} 
+        //- .form-group.row
+        //-     label(for="categoryid").col-sm-2.col-form-label Category
+        //-     .col-sm-10
+        //-         select.form-control#categoryid(name="categoryid")
+        //-             option(value="-1") Select Category
+        //-             each category in categories 
+        //-                 option(value=`${category.id}` selected=category.id===product.categoryId) #{category.name} 
         .form-group.row
             label(for="description").col-sm-2.col-form-label Description
             .col-sm-10
