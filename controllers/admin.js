@@ -75,29 +75,6 @@ exports.getEditProduct = (req, res, next)=>{
         }); 
     }) 
     .catch(err => { console.log(err); });
-
-
-    // Product.findByPk(req.params.productid)
-    // .then((product)=>{
-    //     if (!product) {
-    //         return res.redirect('/');
-    //     }
-    //     Category.findAll()
-    //     .then((categories)=>{
-    //         res.render('admin/edit-product', {
-    //             title: 'Edit Product', 
-    //             path: '/admin/products', 
-    //             product: product,
-    //             categories: categories
-    //         });
-    //     })
-    //     .catch((err)=>{
-    //         console.log(err);
-    //     });
-    // })
-    // .catch((err)=>{
-    //     console.log(err);
-    // });
 }
 
 exports.postEditProduct = (req, res, next)=>{
@@ -107,19 +84,12 @@ exports.postEditProduct = (req, res, next)=>{
     const price = req.body.price;
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
-    const categoryid = req.body.categoryid;
+    //const categoryid = req.body.categoryid;
 
-    Product.findByPk(id)
-    .then(product=>{
-        product.name = name;
-        product.price = price;
-        product.imageUrl = imageUrl;
-        product.description = description;
-        product.categoryId = categoryid;
-        return product.save();
-    })
+    const product = new Product(name, price, description, imageUrl, id);
+
+    product.save()
     .then(result => {
-        console.log('updated');
         res.redirect('/admin/products?action=edit');
     })
     .catch(err => console.log(err));
@@ -128,11 +98,8 @@ exports.postEditProduct = (req, res, next)=>{
 exports.postDeleteProduct = (req, res, next)=>{
     const id = req.body.productid;
 
-    Product.findByPk(id)
-    .then(product =>{
-        return product.destroy();
-    })
-    .then(result=>{
+    Product.deleteById(id)
+    .then(()=>{
         console.log('product has been deleted');
         res.redirect('/admin/products?action=delete');
     })
