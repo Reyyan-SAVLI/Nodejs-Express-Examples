@@ -40,19 +40,9 @@ exports.postAddProduct = (req, res, next)=>{
     const name = req.body.name;
     const price = req.body.price;
     const imageUrl = req.body.imageUrl;
-    const description = req.body.description;
-    //const categoryid = req.body.categoryid;
-    //const user = req.user;
+    const description = req.body.description; 
 
-    // user.createProduct({
-    //     name: name,
-    //     price: price,
-    //     imageUrl: imageUrl,
-    //     description: description,
-    //     //categoryId: categoryid
-    // })
-
-    const product = new Product(name, price, description, imageUrl);
+    const product = new Product(name, price, description, imageUrl, null, req.user._id);
     
     product.save()
     .then((result)=>{
@@ -86,7 +76,7 @@ exports.postEditProduct = (req, res, next)=>{
     const description = req.body.description;
     //const categoryid = req.body.categoryid;
 
-    const product = new Product(name, price, description, imageUrl, id);
+    const product = new Product(name, price, description, imageUrl, id, req.user._id);
 
     product.save()
     .then(result => {
