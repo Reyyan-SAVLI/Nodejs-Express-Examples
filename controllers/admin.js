@@ -1,5 +1,5 @@
 const Product = require('../models/product');
-//const Category = require('../models/category');
+const Category = require('../models/category');
 
 
 exports.getProducts = (req, res, next)=>{
@@ -21,19 +21,6 @@ exports.getAddProduct = (req, res, next)=>{
                 title: 'New Product', 
                 path: '/admin/add-product'
     });
-
-    // Category.findAll()
-    //     .then((categories)=>{
-    //         res.render('admin/add-product', {
-    //             title: 'New Product', 
-    //             path: '/admin/add-product',
-    //             categories: categories
-    //         });
-    //     })
-    //     .catch((err)=>{
-    //         console.log(err);
-    //     });
-    
 }
 
 exports.postAddProduct = (req, res, next)=>{
@@ -92,6 +79,43 @@ exports.postDeleteProduct = (req, res, next)=>{
     .then(()=>{
         console.log('product has been deleted');
         res.redirect('/admin/products?action=delete');
+    })
+    .catch((err)=>{
+        console.log(err);
+    });
+}
+
+exports.getAddCategory = (req, res, next)=> {
+    res.render('admin/add-category',{
+        title: 'New Category',
+        path: '/admin/add-category'
+    });
+}
+
+exports.postAddCategory = (req, res, next)=> {
+    const name = req.body.name;
+    const description = req.body.description; 
+
+    const category = new Category(name, description);
+    
+    category.save()
+    .then((result)=>{
+        console.log(result);
+        res.redirect('/admin/categories?action=create');
+    })
+    .catch((err)=>{
+        console.log(err);
+    }); 
+}
+
+exports.getCategories = (req, res, next)=> {
+    Category.findAll()
+    .then(categories=>{
+        res.render('admin/categories', {
+            title: 'Categories', 
+            categories: categories, 
+            path: '/admin/categories', 
+            action: req.query.action});
     })
     .catch((err)=>{
         console.log(err);
