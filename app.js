@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next)=>{
     User.findByUserName('reyyan')
     .then(user=> {
-        req.user = new User(user.name, user.email, user._id);
+        req.user = new User(user.name, user.email, user._id, user.card);
         next();
     })
     .catch(err=> { console.log(err); });

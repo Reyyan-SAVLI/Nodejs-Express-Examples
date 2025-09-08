@@ -75,17 +75,12 @@ exports.getProduct = (req, res, next)=>{
 
 exports.getCard = (req, res, next)=>{
     req.user.getCard()
-    .then(card=>{
-        return card.getProducts()
-               .then(products=>{
-                    console.log(products);
-                    res.render('shop/card', {
-                        title: 'Card', 
-                        path: '/card',
-                        products: products
-                    });
-               })
-               .catch(err=>{ console.log(err); })
+    .then(products=>{
+        res.render('shop/card', {
+            title: 'Card', 
+            path: '/card',
+            poducts: products
+        });
     })
     .catch(err=>{
         console.log(err);
@@ -94,39 +89,14 @@ exports.getCard = (req, res, next)=>{
 
 exports.postCard = (req, res, next)=>{
     const productId = req.body.productId;
-    let quantity = 1;
-    let userCard;
-
-    req.user.getCard()
-    .then(card=>{
-        userCard = card;
-        return card.getProducts({ where: {id: productId}});
-    })
-    .then(products=>{
-        let product;
-        if (products.length > 0) {
-            product = products[0];
-        }
-
-        if (product) {
-            quantity += product.cardItem.quantity;
-            return product;
-        }
-        return Product.findByPk(productId);
-    })
-    .then(product =>{
-        userCard.addProduct(product,{
-            through: {
-                quantity: quantity
-            }
+    Product.findById(productId)
+        .then(product=> {
+            return req.user.addToCard(product);
         })
-    })
-    .then(()=>{
-        res.redirect('/card');
-    })
-    .catch(err=>{
-        console.log(err);
-    })
+        .then(()=> {
+            res.redirect('/card');
+        })
+        .catch(err=> console.log(err));
 }
 
 exports.postCardItemDelete = (req, res, next)=>{
