@@ -16,7 +16,29 @@ class User {
         .insertOne(this);
     }
 
-    getCard() {}
+    getCard() {
+        const ids =  this.card.items.map(i=> {
+            return i.productId;
+        });
+
+        const db = getDb();
+
+        return db.collection('products')
+            .find({
+                _id: {$in: ids}
+            })
+            .toArray()
+            .then(products=> {
+                return products.map(p=> {
+                    return {
+                        ...p,
+                        quantity: this.card.items.find(i=> {
+                            return i.productId.toString() === p._id.toString()
+                        }).quantity
+                    }
+                });
+            });
+    }
 
     addToCard(product) {
 
@@ -39,7 +61,7 @@ class User {
         return db.collection('users')
             .updateOne(
                 {_id: new mongodb.ObjectId(this._id)},
-                {$set: { cart: { items: updatedCardItems}}}
+                {$set: { card: { items: updatedCardItems}}}
             );
     }
 
@@ -65,6 +87,20 @@ class User {
         .catch(err =>{
             console.log(err);
         });
+    }
+
+    deleteCardItem(productid) {
+        const cardItems = this.card.items.filter(item=> {
+            return item.productId.toString() !== productid.toString()
+        });
+
+        const db = getDb();
+
+        return db.collection('users')
+            .updateOne(
+                {_id: new mongodb.ObjectId(this._id)},
+                {$set: { card: { items: cardItems }}}
+            )
     }
 }
 

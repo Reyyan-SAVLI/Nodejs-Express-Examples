@@ -21,6 +21,7 @@ app.use((req, res, next)=>{
     User.findByUserName('reyyan')
     .then(user=> {
         req.user = new User(user.name, user.email, user._id, user.card);
+        console.log(req.user);
         next();
     })
     .catch(err=> { console.log(err); });

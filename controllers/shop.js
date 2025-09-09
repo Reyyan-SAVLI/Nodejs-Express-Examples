@@ -76,10 +76,11 @@ exports.getProduct = (req, res, next)=>{
 exports.getCard = (req, res, next)=>{
     req.user.getCard()
     .then(products=>{
+        console.log(products);
         res.render('shop/card', {
             title: 'Card', 
             path: '/card',
-            poducts: products
+            products: products
         });
     })
     .catch(err=>{
@@ -103,17 +104,10 @@ exports.postCardItemDelete = (req, res, next)=>{
     const productid = req.body.productid;
 
     req.user
-    .getCard()
-    .then(card =>{
-        return card.getProducts({where: {id: productid}});
-    })
-    .then(products =>{
-        const product = products[0];
-        return product.cardItem.destroy();
-    })
-    .then(result =>{
-        res.redirect('/card');
-    });
+        .deleteCardItem(productid)
+        .then(() =>{
+            res.redirect('/card');
+        });
 }
 
 exports.getOrders = (req, res, next)=>{
