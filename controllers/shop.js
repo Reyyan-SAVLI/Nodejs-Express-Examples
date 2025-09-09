@@ -2,17 +2,22 @@ const Product = require('../models/product');
 const Category = require('../models/category');
 
 exports.getIndex = (req, res, next)=>{
-    Product.findAll()
+    Product.find()
     .then(products=>{
-        Category.findAll()
-            .then(categories=> {
-                res.render('shop/index', {
+        res.render('shop/index', {
                     title: 'Shopping', 
                     products: products,
-                    categories: categories,
                     path: '/'
                 });
-            });
+        // Category.findAll()
+        //     .then(categories=> {
+        //         res.render('shop/index', {
+        //             title: 'Shopping', 
+        //             products: products,
+        //             categories: categories,
+        //             path: '/'
+        //         });
+        //     });
     })
     .catch((err)=>{
         console.log(err);
@@ -20,17 +25,22 @@ exports.getIndex = (req, res, next)=>{
 }
 
 exports.getProducts = (req, res, next)=>{
-    Product.findAll()
+    Product.find()
     .then(products=>{
-        Category.findAll()
-            .then(categories=> {
-                res.render('shop/products', {
+        res.render('shop/products', {
                     title: 'Products', 
                     products: products, 
-                    categories: categories,
                     path: '/products'
                 });
-            });
+        // Category.findAll()
+        //     .then(categories=> {
+        //         res.render('shop/products', {
+        //             title: 'Products', 
+        //             products: products, 
+        //             categories: categories,
+        //             path: '/products'
+        //         });
+        //     });
     })
     .catch((err)=>{
         console.log(err);
