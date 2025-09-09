@@ -5,7 +5,8 @@ require('dotenv').config();
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/shop');
 const errorsController = require('./controllers/errors');
-const mongoConnect = require('./utility/database').mongoConnect;
+
+const mongoose = require('mongoose');
 
 const User = require('./models/user');
 
@@ -17,34 +18,43 @@ app.set('views', './views');
 app.use(bodyParser.urlencoded({extended: false})); 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use((req, res, next)=>{
-    User.findByUserName('reyyan')
-    .then(user=> {
-        req.user = new User(user.name, user.email, user._id, user.card);
-        console.log(req.user);
-        next();
-    })
-    .catch(err=> { console.log(err); });
-})
+// app.use((req, res, next)=>{
+//     User.findByUserName('reyyan')
+//     .then(user=> {
+//         req.user = new User(user.name, user.email, user._id, user.card);
+//         console.log(req.user);
+//         next();
+//     })
+//     .catch(err=> { console.log(err); });
+// })
 
 app.use('/admin' ,adminRoutes);
 app.use(userRoutes);
 
 app.use(errorsController.get404Page);
 
-mongoConnect(()=>{
+// mongoConnect(()=>{
     
-    User.findByUserName('reyyan')
-    .then(user=>{
-        if (!user) {
-            user = new User('reyyan', 'reyyan@gmail.com');
-            return user.save();
-        }
-        return user;
-    })
-    .then(user=>{
-        console.log(user);
+//     User.findByUserName('reyyan')
+//     .then(user=>{
+//         if (!user) {
+//             user = new User('reyyan', 'reyyan@gmail.com');
+//             return user.save();
+//         }
+//         return user;
+//     })
+//     .then(user=>{
+//         console.log(user);
+//         app.listen(3000);
+//     })
+//     .catch(err=> { console.log(err); });
+// });
+
+mongoose.connect(process.env.MONGO_ATLAS)
+    .then(()=> {
+        console.log('Connected to mongodb');
         app.listen(3000);
     })
-    .catch(err=> { console.log(err); });
-});
+    .catch(err=> {
+        console.log(err);
+    })
