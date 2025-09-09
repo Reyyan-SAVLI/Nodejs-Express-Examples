@@ -112,50 +112,24 @@ exports.postCardItemDelete = (req, res, next)=>{
 
 exports.getOrders = (req, res, next)=>{
     req.user
-    .getOrders({include: ['products']})
-    .then(orders =>{
-        console.log(orders);
-
-        res.render('shop/orders', {
-            title: 'Orders', 
-            path: '/orders',
-            orders: orders
+        .getOrders()
+        .then(orders =>{
+            res.render('shop/orders', {
+                title: 'Orders', 
+                path: '/orders',
+                orders: orders
+            });
+        })
+        .catch(err =>{
+            console.log(err);
         });
-    })
-    .catch(err =>{
-        console.log(err);
-    });
 }
 
 exports.postOrder = (req, res, next)=>{
-    let userCard;
-    
     req.user
-    .getCard()
-    .then(card =>{
-        userCard = card;
-        return card.getProducts();
-    })
-    .then(products =>{
-        return req.user.createOrder()
-        .then(order =>{
-            order.addProducts(products.map(product =>{
-                product.orderItem = {
-                    quantity: product.cardItem.quantity,
-                    price: product.price
-                }
-                return product;
-            }));
+        .addOrder()
+        .then(()=> {
+            res.redirect('/card');
         })
-        .catch(err =>{console.log(err);});
-    })
-    .then(() =>{
-        userCard.setProducts(null);
-    })
-    .then(() =>{
-        res.redirect('/orders');
-    })
-    .catch(err =>{
-        console.log(err);
-    });
+        .catch(err=> console.log(err));
 }

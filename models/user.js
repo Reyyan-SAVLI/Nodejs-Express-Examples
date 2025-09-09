@@ -102,6 +102,49 @@ class User {
                 {$set: { card: { items: cardItems }}}
             )
     }
+
+
+    addOrder() {
+        const db = getDb();
+        return this.getCard()
+            .then(products=> {
+                const order = {
+                    items: products.map(item=> {
+                        return {
+                            _id: item.id,
+                            name: item.name,
+                            price: item.price,
+                            imageUrl: item.imageUrl,
+                            userId: item.userId,
+                            quantity: item.quantity
+                        }
+                    }),
+                    user: {
+                        _id: new mongodb.ObjectId(this._id),
+                        name: this.name,
+                        email: this.email
+                    },
+                    date: new Date().toLocaleString()
+                }
+
+                return db.collection('orders').insertOne(order);
+            })
+            .then(()=> {
+                this.card = { items: []};
+                return db.collection('users')
+                    .updateOne(
+                        {_id: new mongodb.ObjectId(this._id)},
+                        { $set: { card: { items: [] }}}
+                    )
+            })
+    }
+
+    getOrders() {
+        const db = getDb();
+        return db.collection('orders')
+            .find({'user._id': new mongodb.ObjectId(this._id)})
+            .toArray();
+    }
 }
 
 module.exports = User;
