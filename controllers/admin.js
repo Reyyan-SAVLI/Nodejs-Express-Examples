@@ -3,7 +3,10 @@ const Category = require('../models/category');
 
 
 exports.getProducts = (req, res, next)=>{
-    Product.find()
+    Product
+    .find()
+    .populate('userId', 'name -_id')
+    .select('name price userId')
     .then(products=>{
         res.render('admin/products', {
             title: 'Admin Products', 
@@ -33,7 +36,8 @@ exports.postAddProduct = (req, res, next)=>{
         name: name,
         price: price,
         imageUrl: imageUrl,
-        description: description
+        description: description,
+        userId: req.user
     });
     
     product.save()
