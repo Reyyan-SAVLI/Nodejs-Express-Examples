@@ -1,12 +1,13 @@
 const Product = require('../models/product');
 const Category = require('../models/category');
+const product = require('../models/product');
 
 
 exports.getProducts = (req, res, next)=>{
     Product
     .find()
     .populate('userId', 'name -_id')
-    .select('name price userId')
+    .select('name price imageUrl userId')
     .then(products=>{
         res.render('admin/products', {
             title: 'Admin Products', 
@@ -52,13 +53,32 @@ exports.postAddProduct = (req, res, next)=>{
 exports.getEditProduct = (req, res, next)=>{     
     
     Product.findById(req.params.productid)
+    //.populate('categories', 'name -_id')
     .then(product =>{
-        res.render('admin/edit-product', {
-                title: 'Edit Product', 
-                path: '/admin/products', 
-                product: product
-            }); 
+        return product;
     }) 
+    .then(product=>{
+        Category.find()
+            .then(categories=>{
+                categories = categories.map(category=> {
+
+                    if (product.categories) {
+                        product.categories.find(item=> {
+                            if(item.toString() === category._id.toString()) {
+                                category.selected = true
+                            }
+                        })
+                    }
+                    return category;
+                })
+                res.render('admin/edit-product', {
+                    title: 'Edit Product', 
+                    path: '/admin/products',
+                    product: product,
+                    categories: categories
+                }); 
+            })
+    })
     .catch(err => { console.log(err); });
 }
 
@@ -69,30 +89,19 @@ exports.postEditProduct = (req, res, next)=>{
     const price = req.body.price;
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
+    const ids = req.body.categoryids;
 
     Product.findByIdAndUpdate(id, {
             name: name,
             price: price,
             imageUrl: imageUrl,
-            description: description
+            description: description,
+            categories: ids
         })
     .then(()=> {
             res.redirect('/admin/products?action=edit');
     })
     .catch(err => console.log(err));
-
-    // Product.findById(id)
-    //     .then(product=> {
-    //         product.name = name,
-    //         product.price = price,
-    //         product.imageUrl = imageUrl,
-    //         product.description = description
-    //         return product.save()
-    //     })
-    //     .then(()=> {
-    //         res.redirect('/admin/products?action=edit');
-    //     })
-    //     .catch(err => console.log(err));
 }
 
 exports.postDeleteProduct = (req, res, next)=>{
@@ -119,7 +128,10 @@ exports.postAddCategory = (req, res, next)=> {
     const name = req.body.name;
     const description = req.body.description; 
 
-    const category = new Category(name, description);
+    const category = new Category({
+        name: name,
+        description: description
+    });
     
     category.save()
     .then((result)=>{
@@ -132,7 +144,7 @@ exports.postAddCategory = (req, res, next)=> {
 }
 
 exports.getCategories = (req, res, next)=> {
-    Category.findAll()
+    Category.find()
     .then(categories=>{
         res.render('admin/categories', {
             title: 'Categories', 
@@ -165,11 +177,24 @@ exports.postEditCategory = (req, res, next)=>{
     const name = req.body.name;
     const description = req.body.description;
 
-    const category = new Category(name, description, id);
+    Category.findById(id)
+        .then(category=> {
+            category.name = name;
+            category.description = description
+            return category.save();
+        })
+        .then(()=> {
+            res.redirect('/admin/categories?action=edit');
+        })
+        .catch(err => console.log(err));
+}
 
-    category.save()
-    .then(result => {
-        res.redirect('/admin/categories?action=edit');
-    })
-    .catch(err => console.log(err));
+exports.postDeleteCategory = (req, res, next)=>{
+    const id = req.body.categoryid;
+
+    Category.deleteOne({_id: id})
+        .then(()=> {
+            res.redirect('/admin/categories?action=delete');
+        })
+        .catch(err => console.log(err));
 }

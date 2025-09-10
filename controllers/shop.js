@@ -4,20 +4,18 @@ const Category = require('../models/category');
 exports.getIndex = (req, res, next)=>{
     Product.find()
     .then(products=>{
-        res.render('shop/index', {
+        return products;
+    })
+    .then(products=> {
+         Category.find()
+            .then(categories=> {
+                res.render('shop/index', {
                     title: 'Shopping', 
                     products: products,
+                    categories: categories,
                     path: '/'
                 });
-        // Category.findAll()
-        //     .then(categories=> {
-        //         res.render('shop/index', {
-        //             title: 'Shopping', 
-        //             products: products,
-        //             categories: categories,
-        //             path: '/'
-        //         });
-        //     });
+            });
     })
     .catch((err)=>{
         console.log(err);
@@ -27,20 +25,18 @@ exports.getIndex = (req, res, next)=>{
 exports.getProducts = (req, res, next)=>{
     Product.find()
     .then(products=>{
-        res.render('shop/products', {
+        return products;
+    })
+    .then(products=> {
+        Category.find()
+            .then(categories=> {
+                res.render('shop/products', {
                     title: 'Products', 
                     products: products, 
+                    categories: categories,
                     path: '/products'
                 });
-        // Category.findAll()
-        //     .then(categories=> {
-        //         res.render('shop/products', {
-        //             title: 'Products', 
-        //             products: products, 
-        //             categories: categories,
-        //             path: '/products'
-        //         });
-        //     });
+            });
     })
     .catch((err)=>{
         console.log(err);
@@ -51,10 +47,12 @@ exports.getProductsByCategoryId = (req, res, next)=>{
     const categoryid = req.params.categoryid;
     const model = [];
     
-    Category.findAll()
+    Category.find()
     .then(categories=>{
         model.categories = categories;
-        return Product.findByCategoryId(categoryid);
+        return Product.find({
+            categories: categoryid
+        });
     })
     .then(products=>{
         res.render('shop/products', {
