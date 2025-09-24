@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Product = require('./product');
 
 const userSchema = mongoose.Schema({
     name: {
@@ -23,6 +24,64 @@ const userSchema = mongoose.Schema({
         }]
     }
 });
+
+userSchema.methods.addToCard = function (product){
+    const index = this.card.items.findIndex(cp=> {
+        return cp.productId.toString() === product._id.toString()
+    });
+    const updatedCardItems = [...this.card.items];
+
+    let itemQuantity = 1;
+    if (index >= 0) {
+        itemQuantity = this.card.items[index].quantity + 1;
+        updatedCardItems[index].quantity = itemQuantity;            
+    } else {
+        updatedCardItems.push({
+            productId: product._id,
+            quantity: itemQuantity
+        });
+    }
+
+    this.card = {
+        items: updatedCardItems
+    }
+    return this.save();
+}
+
+userSchema.methods.getCard = function () {
+    const ids =  this.card.items.map(i=> {
+            return i.productId;
+    });
+
+    return Product
+        .find({
+            _id: {$in: ids}
+        })
+        .select('name price imageUrl')
+        .then(products=> {
+            return products.map(p=> {
+                return {
+                    _id: p._id,
+                    name: p.name,
+                    price: p.price,
+                    imageUrl: p.imageUrl,
+                    quantity: this.card.items.find(i=> {
+                        return i.productId.toString() === p._id.toString()
+                    }).quantity
+                }
+            });
+    });
+}
+
+userSchema.methods.deleteCardItem = function (productid) {
+    const cardItems = this.card.items.filter(item=> {
+        return item.productId.toString() !== productid.toString()
+    });  
+
+    this.card.items = cardItems;
+
+    return this.save();
+}
 
 module.exports = mongoose.model('User', userSchema);
 
@@ -73,27 +132,7 @@ module.exports = mongoose.model('User', userSchema);
 
 //     addToCard(product) {
 
-//         const index = this.card.items.findIndex(cp=> {
-//             return cp.productId.toString() === product._id.toString()
-//         });
-//         const updatedCardItems = [...this.card.items];
 
-//         let itemQuantity = 1;
-//         if (index >= 0) {
-//             itemQuantity = this.card.items[index].quantity + 1;
-//             updatedCardItems[index].quantity = itemQuantity;            
-//         } else {
-//             updatedCardItems.push({
-//                 productId: new mongodb.ObjectId(product._id),
-//                 quantity: itemQuantity
-//             });
-//         }
-//         const db = getDb();
-//         return db.collection('users')
-//             .updateOne(
-//                 {_id: new mongodb.ObjectId(this._id)},
-//                 {$set: { card: { items: updatedCardItems}}}
-//             );
 //     }
 
 //     static findById(userid){

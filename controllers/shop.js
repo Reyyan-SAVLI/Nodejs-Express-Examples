@@ -82,9 +82,9 @@ exports.getProduct = (req, res, next)=>{
 
 
 exports.getCard = (req, res, next)=>{
-    req.user.getCard()
-    .then(products=>{
-        console.log(products);
+    req.user
+    .getCard()
+    .then(products =>{
         res.render('shop/card', {
             title: 'Card', 
             path: '/card',
