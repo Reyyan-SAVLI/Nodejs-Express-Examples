@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const Category = require('../models/category');
+const Order = require('../models/order');
 
 exports.getIndex = (req, res, next)=>{
     Product.find()
@@ -119,25 +120,49 @@ exports.postCardItemDelete = (req, res, next)=>{
 }
 
 exports.getOrders = (req, res, next)=>{
-    req.user
-        .getOrders()
-        .then(orders =>{
-            res.render('shop/orders', {
-                title: 'Orders', 
-                path: '/orders',
-                orders: orders
-            });
-        })
-        .catch(err =>{
-            console.log(err);
+    Order
+    .find({'user.userId': req.user._id})
+    .then(orders =>{
+        res.render('shop/orders', {
+            title: 'Orders', 
+            path: '/orders',
+            orders: orders
         });
+    })
+    .catch(err =>{
+        console.log(err);
+    });
 }
 
 exports.postOrder = (req, res, next)=>{
     req.user
-        .addOrder()
-        .then(()=> {
-            res.redirect('/card');
-        })
-        .catch(err=> console.log(err));
+    .populate('card.items.productId')
+    .then(user => {
+        const order = new Order({
+            user: {
+                userId: req.user._id,
+                name: req.user.name,
+                email: req.user.email
+            },
+            items: user.card.items.map(p =>{
+                return {
+                    product: {
+                        _id: p.productId._id,
+                        name: p.productId.name,
+                        price: p.productId.price,
+                        imageUrl: p.productId.imageUrl
+                    },
+                    quantity: p.quantity
+                };
+            })
+        });
+        return order.save();
+    })
+    .then(() => {
+        return req.user.clearCard();
+    })
+    .then(() => {
+        res.redirect('/orders');
+    })
+    .catch(err=> console.log(err));
 }

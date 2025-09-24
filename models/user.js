@@ -83,6 +83,11 @@ userSchema.methods.deleteCardItem = function (productid) {
     return this.save();
 }
 
+userSchema.methods.clearCard = function () {
+    this.card = { items: []};
+    return this.save();    
+}
+
 module.exports = mongoose.model('User', userSchema);
 
 
