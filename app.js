@@ -10,10 +10,16 @@ const errorsController = require('./controllers/errors');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const mongoDbStore = require('connect-mongodb-session')(session);
 
 const User = require('./models/user');
 
 const app = express();
+
+var store = new mongoDbStore({
+    uri: process.env.MONGO_ATLAS,
+    collection: 'mySessions'
+});
 
 app.set('view engine', 'pug');
 app.set('views', './views');
@@ -26,7 +32,8 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         maxAge: 3600000
-    }
+    },
+    store: store
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
