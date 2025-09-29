@@ -1,10 +1,16 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
+const sgMail = require('@sendgrid/mail');
+
+sgMail.setApiKey(process.env.MAIL_KEY);
 
 exports.getLogin = (req, res, next) =>{
+    var errorMessage = req.session.errorMessage;
+    delete req.session.errorMessage;
     res.render('account/login',{
         path: '/login',
-        title: 'Login'
+        title: 'Login',
+        errorMessage: errorMessage
     });
 }
 
@@ -15,7 +21,11 @@ exports.postLogin = (req, res, next) =>{
     User.findOne({ email: email})
     .then(user =>{
         if (!user) {
-            return res.redirect('/login');
+            req.session.errorMessage = 'Email was not found.';
+            req.session.save(function(error){
+                console.log(error);
+                return res.redirect('/login');
+            });
         }
 
         bcrypt.compare(password, user.password)
@@ -42,9 +52,12 @@ exports.postLogin = (req, res, next) =>{
 }
 
 exports.getRegister = (req, res, next) =>{
+    var errorMessage = req.session.errorMessage;
+    delete req.session.errorMessage;
     res.render('account/register',{
         path: '/register',
-        title: 'Register'
+        title: 'Register',
+        errorMessage: errorMessage
     });
 }
 
@@ -56,7 +69,11 @@ exports.postRegister = (req, res, next) =>{
     User.findOne({email: email})
     .then(user =>{
         if (user) {
-            return res.redirect('/register');
+            req.session.errorMessage = 'Email contains a record.';
+            req.session.save(function(error){
+                console.log(error);
+                return res.redirect('/register');
+            });
         }
         return bcrypt.hash(password, 10);
     })
@@ -72,6 +89,14 @@ exports.postRegister = (req, res, next) =>{
     })
     .then(() =>{
         res.redirect('/login');
+
+        const msg = {
+            to: email,
+            from: 'reyyansvli@gmail.com',
+            subject: 'Account created',
+            html: '<h1>Your account has been created successfully.</h1>',
+        };
+        sgMail.send(msg);
     })
     .catch(err =>{
         console.log(err);
