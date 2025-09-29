@@ -4,8 +4,7 @@ const bcrypt = require('bcrypt');
 exports.getLogin = (req, res, next) =>{
     res.render('account/login',{
         path: '/login',
-        title: 'Login',
-        isAuthenticated: req.session.isAuthenticated
+        title: 'Login'
     });
 }
 
@@ -25,8 +24,9 @@ exports.postLogin = (req, res, next) =>{
                 req.session.user = user;
                 req.session.isAuthenticated = true;
                 return req.session.save(function (err){
-                    console.log(err);
-                    res.redirect('/');
+                    var url = req.session.redirectTo || '/';
+                    delete req.session.redirectTo;
+                    return res.redirect(url);
                 });
             }
             res.redirect('/login');
@@ -44,8 +44,7 @@ exports.postLogin = (req, res, next) =>{
 exports.getRegister = (req, res, next) =>{
     res.render('account/register',{
         path: '/register',
-        title: 'Register',
-        isAuthenticated: req.session.isAuthenticated
+        title: 'Register'
     });
 }
 
@@ -88,4 +87,11 @@ exports.getReset = (req, res, next) =>{
 
 exports.postReset = (req, res, next) =>{
     res.redirect('/login');
+}
+
+exports.getLogout = (req, res, next) =>{
+    req.session.destroy(err =>{
+        console.log(err);
+        res.redirect('/');
+    });
 }

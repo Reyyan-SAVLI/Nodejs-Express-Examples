@@ -14,8 +14,7 @@ exports.getIndex = (req, res, next)=>{
                     title: 'Shopping', 
                     products: products,
                     categories: categories,
-                    path: '/',
-                    isAuthenticated: req.session.isAuthenticated
+                    path: '/'
                 });
             });
     })
@@ -36,8 +35,7 @@ exports.getProducts = (req, res, next)=>{
                     title: 'Products', 
                     products: products, 
                     categories: categories,
-                    path: '/products',
-                    isAuthenticated: req.session.isAuthenticated
+                    path: '/products'
                 });
             });
     })
@@ -63,8 +61,7 @@ exports.getProductsByCategoryId = (req, res, next)=>{
             products: products, 
             categories: model.categories,
             selectedCategory: categoryid,
-            path: '/products',
-            isAuthenticated: req.session.isAuthenticated
+            path: '/products'
         });
     })
     .catch((err)=>{
@@ -78,8 +75,7 @@ exports.getProduct = (req, res, next)=>{
         res.render('shop/product-detail', {
             title: product.name, 
             product: product, 
-            path: '/products',
-            isAuthenticated: req.session.isAuthenticated
+            path: '/products'
         });
     })
     .catch((err)=>{
@@ -95,8 +91,7 @@ exports.getCard = (req, res, next)=>{
         res.render('shop/card', {
             title: 'Card', 
             path: '/card',
-            products: products,
-            isAuthenticated: req.session.isAuthenticated
+            products: products
         });
     })
     .catch(err=>{
@@ -133,8 +128,7 @@ exports.getOrders = (req, res, next)=>{
         res.render('shop/orders', {
             title: 'Orders', 
             path: '/orders',
-            orders: orders,
-            isAuthenticated: req.session.isAuthenticated
+            orders: orders
         });
     })
     .catch(err =>{

@@ -11,6 +11,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const mongoDbStore = require('connect-mongodb-session')(session);
+const csurf = require('csurf');
 
 const User = require('./models/user');
 
@@ -49,6 +50,7 @@ app.use((req, res, next)=>{
     })
     .catch(err=> { console.log(err); });
 })
+app.use(csurf());
 
 app.use('/admin' ,adminRoutes);
 app.use(userRoutes);
