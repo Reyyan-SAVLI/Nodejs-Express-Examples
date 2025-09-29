@@ -56,25 +56,7 @@ app.use(errorsController.get404Page);
 mongoose.connect(process.env.MONGO_ATLAS)
     .then(()=> {
         console.log('Connected to mongodb');
-        User.findOne({name: 'reyyan'})
-            .then(user=>{
-                if (!user) {
-                    user = new User({
-                        name: 'reyyan',
-                        email: 'reyyan@gmail.com',
-                        card: {
-                            items: []
-                        }
-                    });
-                    return user.save();
-                }
-                return user;
-            })
-            .then(user=>{
-                console.log(user);
-                app.listen(3000);
-            })
-            .catch(err=> { console.log(err); });
+        app.listen(3000);
     })
     .catch(err=> {
         console.log(err);
