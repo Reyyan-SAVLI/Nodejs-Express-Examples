@@ -9,6 +9,7 @@ const errorsController = require('./controllers/errors');
 
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 
 const User = require('./models/user');
 
@@ -19,6 +20,14 @@ app.set('views', './views');
 
 app.use(bodyParser.urlencoded({extended: false})); 
 app.use(cookieParser());
+app.use(session({
+    secret: process.env.SECRET_KEY,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 3600000
+    }
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next)=>{
