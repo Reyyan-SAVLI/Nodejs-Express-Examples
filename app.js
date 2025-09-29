@@ -4,6 +4,7 @@ const path = require('path');
 require('dotenv').config();
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/shop');
+const accountRoutes = require('./routes/account');
 const errorsController = require('./controllers/errors');
 
 const mongoose = require('mongoose');
@@ -30,6 +31,7 @@ app.use((req, res, next)=>{
 
 app.use('/admin' ,adminRoutes);
 app.use(userRoutes);
+app.use(accountRoutes);
 
 app.use(errorsController.get404Page);
 
