@@ -13,13 +13,32 @@ exports.postLogin = (req, res, next) =>{
     const email = req.body.email;
     const password = req.body.password;
 
-    if((email == 'email@gmail.com') && (password == '1234')){
-        req.session.isAuthenticated = true;
-        res.redirect('/');
-    }else{
-        req.isAuthenticated = false;
-        res.redirect('/login');
-    }
+    User.findOne({ email: email})
+    .then(user =>{
+        if (!user) {
+            return res.redirect('/login');
+        }
+
+        bcrypt.compare(password, user.password)
+        .then(isSuccess =>{
+            if (isSuccess) {
+                req.session.user = user;
+                req.session.isAuthenticated = true;
+                return req.session.save(function (err){
+                    console.log(err);
+                    res.redirect('/');
+                });
+            }
+            res.redirect('/login');
+        })
+        .catch(err =>{
+            console.log(err);
+        })
+    })
+    .catch(err =>{
+        console.log(err);
+    });
+    
 }
 
 exports.getRegister = (req, res, next) =>{

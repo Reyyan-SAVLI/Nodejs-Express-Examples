@@ -36,7 +36,8 @@ exports.getProducts = (req, res, next)=>{
                     title: 'Products', 
                     products: products, 
                     categories: categories,
-                    path: '/products'
+                    path: '/products',
+                    isAuthenticated: req.session.isAuthenticated
                 });
             });
     })
@@ -58,11 +59,13 @@ exports.getProductsByCategoryId = (req, res, next)=>{
     })
     .then(products=>{
         res.render('shop/products', {
-        title: 'Products', 
-        products: products, 
-        categories: model.categories,
-        selectedCategory: categoryid,
-        path: '/products'});
+            title: 'Products', 
+            products: products, 
+            categories: model.categories,
+            selectedCategory: categoryid,
+            path: '/products',
+            isAuthenticated: req.session.isAuthenticated
+        });
     })
     .catch((err)=>{
         console.log(err);
@@ -73,9 +76,11 @@ exports.getProduct = (req, res, next)=>{
     Product.findById(req.params.productid)
     .then(product=>{
         res.render('shop/product-detail', {
-        title: product.name, 
-        product: product, 
-        path: '/products'});
+            title: product.name, 
+            product: product, 
+            path: '/products',
+            isAuthenticated: req.session.isAuthenticated
+        });
     })
     .catch((err)=>{
         console.log(err);
@@ -90,7 +95,8 @@ exports.getCard = (req, res, next)=>{
         res.render('shop/card', {
             title: 'Card', 
             path: '/card',
-            products: products
+            products: products,
+            isAuthenticated: req.session.isAuthenticated
         });
     })
     .catch(err=>{
@@ -127,7 +133,8 @@ exports.getOrders = (req, res, next)=>{
         res.render('shop/orders', {
             title: 'Orders', 
             path: '/orders',
-            orders: orders
+            orders: orders,
+            isAuthenticated: req.session.isAuthenticated
         });
     })
     .catch(err =>{
