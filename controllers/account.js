@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const sgMail = require('@sendgrid/mail');
+const crypto = require('crypto');
 
 sgMail.setApiKey(process.env.MAIL_KEY);
 
@@ -104,14 +105,61 @@ exports.postRegister = (req, res, next) =>{
 }
 
 exports.getReset = (req, res, next) =>{
+    var errorMessage = req.session.errorMessage;
+    delete req.session.errorMessage;
     res.render('account/reset',{
-        path: '/reset',
-        title: 'Reset'
+        path: '/reset-password',
+        title: 'Reset Password',
+        errorMessage: errorMessage
     });
 }
 
 exports.postReset = (req, res, next) =>{
-    res.redirect('/login');
+    const email = req.body.email;
+
+    crypto.randomBytes(32, (err, buffer) =>{
+        if (err) {
+            console.log(err);
+            return res.redirect('/reset-password');
+        }
+        const token = buffer.toString('hex');
+
+        User.findOne({ email: email})
+        .then(user =>{
+            if (!user) {
+                req.session.errorMessage = 'Email was not found.';
+                req.session.save(function(error){
+                    console.log(error);
+                    return res.redirect('/reset-password');
+                });
+            }
+            user.resetToken = token;
+            user.resetTokenExpiration = Date.now()+3600000;
+
+            return user.save();
+        })
+        .then(result =>{
+            res.redirect('/');
+
+            const msg = {
+                to: email,
+                from: 'reyyansvli@gmail.com',
+                subject: 'Password Reset',
+                html: `
+                    <p>To change your password, click the link.</p>
+                    <p>
+                       <a href="http://localhost:3000/reset-password/${token}">
+                       Reset Password </a>
+                    </p>
+                `,
+            };
+            sgMail.send(msg);
+        })
+        .catch(err =>{
+            console.log(err);
+        });
+    });
+    //res.redirect('/login');
 }
 
 exports.getLogout = (req, res, next) =>{
