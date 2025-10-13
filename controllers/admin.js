@@ -4,7 +4,7 @@ const Category = require('../models/category');
 
 exports.getProducts = (req, res, next)=>{
     Product
-    .find()
+    .find({userId: req.user._id})
     .populate('userId', 'name -_id')
     .select('name price imageUrl userId')
     .then(products=>{
@@ -52,16 +52,18 @@ exports.postAddProduct = (req, res, next)=>{
 
 exports.getEditProduct = (req, res, next)=>{     
     
-    Product.findById(req.params.productid)
+    Product.findOne({_id:req.params.productid, userId: req.user._id})
     //.populate('categories', 'name -_id')
     .then(product =>{
+        if (!product) {
+            return res.redirect('/');
+        }
         return product;
     }) 
     .then(product=>{
         Category.find()
             .then(categories=>{
                 categories = categories.map(category=> {
-
                     if (product.categories) {
                         product.categories.find(item=> {
                             if(item.toString() === category._id.toString()) {
@@ -75,7 +77,8 @@ exports.getEditProduct = (req, res, next)=>{
                     title: 'Edit Product', 
                     path: '/admin/products',
                     product: product,
-                    categories: categories
+                    categories: categories,
+                    isAuthenticated: req.session.isAuthenticated
                 }); 
             })
     })
@@ -91,13 +94,14 @@ exports.postEditProduct = (req, res, next)=>{
     const description = req.body.description;
     const ids = req.body.categoryids;
 
-    Product.findByIdAndUpdate(id, {
+    Product.update({_id: id, userId: req.user._id}, {
+        $set: {
             name: name,
             price: price,
             imageUrl: imageUrl,
             description: description,
             categories: ids
-        })
+        }})
     .then(()=> {
             res.redirect('/admin/products?action=edit');
     })
@@ -107,8 +111,11 @@ exports.postEditProduct = (req, res, next)=>{
 exports.postDeleteProduct = (req, res, next)=>{
     const id = req.body.productid;
 
-    Product.deleteOne({_id: id})
-    .then(()=>{
+    Product.deleteOne({_id: id, userId: req.user._id})
+    .then((result)=>{
+        if (result.deletedCount === 0) {
+            return res.redirect('/');
+        }
         console.log('product has been deleted');
         res.redirect('/admin/products?action=delete');
     })
