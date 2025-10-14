@@ -19,7 +19,7 @@ exports.getIndex = (req, res, next)=>{
             });
     })
     .catch((err)=>{
-        console.log(err);
+        next(err);
     });    
 }
 
@@ -40,7 +40,7 @@ exports.getProducts = (req, res, next)=>{
             });
     })
     .catch((err)=>{
-        console.log(err);
+        next(err);
     });
 }
 
@@ -65,7 +65,7 @@ exports.getProductsByCategoryId = (req, res, next)=>{
         });
     })
     .catch((err)=>{
-        console.log(err);
+        next(err);
     });      
 }
 
@@ -79,7 +79,7 @@ exports.getProduct = (req, res, next)=>{
         });
     })
     .catch((err)=>{
-        console.log(err);
+        next(err);
     });
 }
 
@@ -95,7 +95,7 @@ exports.getCard = (req, res, next)=>{
         });
     })
     .catch(err=>{
-        console.log(err);
+        next(err);
     })
 }
 
@@ -108,7 +108,7 @@ exports.postCard = (req, res, next)=>{
         .then(()=> {
             res.redirect('/card');
         })
-        .catch(err=> console.log(err));
+        .catch(err=> next(err));
 }
 
 exports.postCardItemDelete = (req, res, next)=>{
@@ -132,7 +132,7 @@ exports.getOrders = (req, res, next)=>{
         });
     })
     .catch(err =>{
-        console.log(err);
+        next(err);
     });
 }
 
@@ -166,5 +166,5 @@ exports.postOrder = (req, res, next)=>{
     .then(() => {
         res.redirect('/orders');
     })
-    .catch(err=> console.log(err));
+    .catch(err=> next(err));
 }

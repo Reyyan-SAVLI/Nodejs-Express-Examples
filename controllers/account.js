@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Login = require('../models/login');
 const bcrypt = require('bcrypt');
 const sgMail = require('@sendgrid/mail');
 const crypto = require('crypto');
@@ -19,12 +20,18 @@ exports.postLogin = (req, res, next) =>{
     const email = req.body.email;
     const password = req.body.password;
 
-    User.findOne({ email: email})
+    const loginModel = new Login({
+        email: email,
+        password: password
+    });
+
+    loginModel.validate()
+    .then(()=> {
+        User.findOne({ email: email})
     .then(user =>{
         if (!user) {
             req.session.errorMessage = 'Email was not found.';
             req.session.save(function(error){
-                console.log(error);
                 return res.redirect('/login');
             });
         }
@@ -40,7 +47,10 @@ exports.postLogin = (req, res, next) =>{
                     return res.redirect(url);
                 });
             }
-            res.redirect('/login');
+            req.session.errorMessage = 'Incorrect Email or Password';
+            req.session.save(function(error){
+                return res.redirect('/login');
+            });
         })
         .catch(err =>{
             console.log(err);
@@ -48,6 +58,23 @@ exports.postLogin = (req, res, next) =>{
     })
     .catch(err =>{
         console.log(err);
+    });
+    })
+    .catch(err=> {
+        if (err.name == 'ValidationError') {
+            let message = '';
+            for (field in err.errors) {
+                message += err.errors[field].message + '<br>';                
+            }
+
+            res.render('account/login',{
+                path: '/login',
+                title: 'Login',
+                errorMessage: message
+            });
+        }else {
+            next(err);
+        }
     });
     
 }
@@ -99,8 +126,21 @@ exports.postRegister = (req, res, next) =>{
         };
         sgMail.send(msg);
     })
-    .catch(err =>{
-        console.log(err);
+    .catch(err=> {
+        if (err.name == 'ValidationError') {
+            let message = '';
+            for (field in err.errors) {
+                message += err.errors[field].message + '<br>';                
+            }
+
+            res.render('account/register',{
+                path: '/register',
+                title: 'Register',
+                errorMessage: message
+            });
+        }else {
+            next(err);
+        }
     });
 }
 
@@ -155,9 +195,7 @@ exports.postReset = (req, res, next) =>{
             };
             sgMail.send(msg);
         })
-        .catch(err =>{
-            console.log(err);
-        });
+        .catch(err=> {next(err); });
     });
 }
 
@@ -179,7 +217,7 @@ exports.getNewPassword = (req, res, next) =>{
         });
     })
     .catch(err =>{
-        console.log(err);
+        next(err);
     });
 }
 
@@ -210,7 +248,7 @@ exports.postNewPassword = (req, res, next) =>{
         res.redirect('/login');
     })
     .catch(err =>{
-        console.log(err);
+        next(err);
     });
 }
 

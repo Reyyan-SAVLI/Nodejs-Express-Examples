@@ -15,6 +15,7 @@ const mongoDbStore = require('connect-mongodb-session')(session);
 const csurf = require('csurf');
 
 const User = require('./models/user');
+const { title } = require('process');
 
 const app = express();
 
@@ -57,7 +58,12 @@ app.use('/admin' ,adminRoutes);
 app.use(userRoutes);
 app.use(accountRoutes);
 
+app.use('/500', errorsController.get500Page);
 app.use(errorsController.get404Page);
+app.use((error, req, res, next)=> {
+    res.status(500).render('error/500', {title: 'Error'});
+})
+
 
 mongoose.connect(process.env.MONGO_ATLAS)
     .then(()=> {
